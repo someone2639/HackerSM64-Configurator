@@ -47,4 +47,5 @@ expand_to_text_length = true
 [connection signal="tree_entered" from="HBoxContainer/option_name" to="." method="_on_option_name_tree_entered"]
 [connection signal="toggled" from="HBoxContainer/buttons/option_on" to="." method="_on_option_on_toggled"]
 [connection signal="tree_entered" from="HBoxContainer/buttons/option_on" to="." method="_on_option_on_tree_entered"]
+[connection signal="text_changed" from="HBoxContainer/buttons/option_text" to="." method="_on_option_text_text_changed"]
 [connection signal="tree_entered" from="HBoxContainer/buttons/option_text" to="." method="_on_option_text_tree_entered"]

@@ -2,13 +2,11 @@ extends Control
 
 @export var optname : String
 @export var state : bool
+@export var _filepath : String
+@export var _defname : String
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
 	pass
 
 func _on_option_name_tree_entered():
@@ -19,3 +17,5 @@ func _on_option_state_tree_entered():
 	butt.button_pressed = state
 	butt.tooltip_text = self.tooltip_text
 
+func _on_option_state_toggled(toggled_on):
+	GlobalVars.defines_db[_filepath][_defname] = toggled_on

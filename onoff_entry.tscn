@@ -36,4 +36,5 @@ tooltip_text = "placeholder
 "
 
 [connection signal="tree_entered" from="HBoxContainer/option_name" to="." method="_on_option_name_tree_entered"]
+[connection signal="toggled" from="HBoxContainer/option_state" to="." method="_on_option_state_toggled"]
 [connection signal="tree_entered" from="HBoxContainer/option_state" to="." method="_on_option_state_tree_entered"]

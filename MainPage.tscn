@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dbscidh440jl0"]
+[gd_scene load_steps=3 format=3 uid="uid://dbscidh440jl0"]
 
 [ext_resource type="Script" path="res://config_tabs.gd" id="1_5ne1x"]
+[ext_resource type="Script" path="res://MainPage_topbar.gd" id="1_vounr"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -11,6 +12,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+script = ExtResource("1_vounr")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -20,26 +22,48 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+[node name="top_bar" type="MarginContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/top_bar"]
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 size_flags_vertical = 0
+alignment = 2
+
+[node name="cur_path" type="Label" parent="VBoxContainer/top_bar/HBoxContainer"]
+layout_mode = 2
+
+[node name="NewFolderButton" type="Button" parent="VBoxContainer/top_bar/HBoxContainer"]
+layout_mode = 2
+text = "Select New Decomp Folder"
 
 [node name="TabContainer" type="TabContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 script = ExtResource("1_5ne1x")
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
+[node name="bottom_bar" type="MarginContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/bottom_bar"]
 custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 size_flags_vertical = 8
 
-[node name="ApplyChangesButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
+[node name="ApplyChangesButton" type="Button" parent="VBoxContainer/bottom_bar/HBoxContainer2"]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 text = "Apply Changes"
 
-[connection signal="pressed" from="VBoxContainer/HBoxContainer2/ApplyChangesButton" to="VBoxContainer/TabContainer" method="_on_apply_changes_button_pressed"]
+[connection signal="tree_entered" from="VBoxContainer/top_bar/HBoxContainer/cur_path" to="." method="_on_cur_path_tree_entered"]
+[connection signal="pressed" from="VBoxContainer/top_bar/HBoxContainer/NewFolderButton" to="." method="_on_new_folder_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/bottom_bar/HBoxContainer2/ApplyChangesButton" to="VBoxContainer/TabContainer" method="_on_apply_changes_button_pressed"]

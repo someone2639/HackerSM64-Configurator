@@ -6,38 +6,41 @@ const onoff_value_entry = preload("res://onoff_value_entry.tscn")
 const Description = preload("res://Description.gd")
 
 func process_file(tab, filepath):
-	print_debug("processing ", filepath)
+	#print_debug("processing ", filepath)
 	var file = FileAccess.open(filepath, FileAccess.READ)
 	# TODO: add descriptions
 	var curDesc : String = ""
-	var desc : Description = null
+	var _desc : Description = null
 	var ignoringLine : bool = false
+	
+	# TODO: Special cases
+	# internal rom name: pad to 20 chars, have a limit too
+	# 
 	
 	while !file.eof_reached():
 		var line = file.get_line()
 		var state = false
 		var labelname = ""
 		
-		if "#if" in line:
-			ignoringLine = true
 		if "#endif" in line:
 			ignoringLine = false
+		elif "#elif" in line:
+			ignoringLine = true
+		elif "#if" in line:
+			ignoringLine = true
 		
 		if ignoringLine:
 			continue
 		
 		if "/**" in line.substr(0,3):
 			curDesc = line.substr(3) + "\n"
-			#print("START ", curDesc)
 		elif " * " in line.substr(0,3):
 			curDesc += line.substr(3) + "\n"
-			#print("MIDDLE  ", curDesc)
 		elif "*/" in line:
 			pass
 			#desc = Description.new()
 			#desc.text = curDesc
-			#print("END  ", curDesc)
-		
+
 		if "#define" in line:
 			if "(" in line and ")" in line:
 				continue
@@ -52,6 +55,8 @@ func process_file(tab, filepath):
 						toAdd.value = val
 						toAdd.state = false
 						toAdd.tooltip_text = curDesc
+						toAdd._defname = real_name
+						toAdd._filepath = filepath
 						GlobalVars.defines_db[filepath][real_name] = [state, val]
 						tab.add_child(toAdd)
 					else:
@@ -60,7 +65,12 @@ func process_file(tab, filepath):
 						var toAdd = value_entry.instantiate()
 						toAdd.optname = real_name.capitalize()
 						toAdd.value = val
+						if labelname.split(" ", false)[0].strip_edges() == "INTERNAL_ROM_NAME":
+							toAdd.max_length = 20
+							toAdd.value = labelname.split('"', false)[1]
 						toAdd.tooltip_text = curDesc
+						toAdd._defname = real_name
+						toAdd._filepath = filepath
 						tab.add_child(toAdd)
 						GlobalVars.defines_db[filepath][real_name] = val
 				else: # just on/off
@@ -71,8 +81,9 @@ func process_file(tab, filepath):
 					var toAdd = onoff.instantiate()
 					toAdd.optname = labelname.capitalize()
 					toAdd.state = state
-					print(curDesc)
 					toAdd.tooltip_text = curDesc
+					toAdd._defname = labelname
+					toAdd._filepath = filepath
 					GlobalVars.defines_db[filepath][labelname] = state
 					#print(labelname)
 					tab.add_child(toAdd)
@@ -100,7 +111,12 @@ func _ready():
 					var tab_title = file_name.split("_")[1].split(".h")[0].capitalize()
 					margins.set_name(tab_title)
 					add_child(margins)
-					
+
+					#var scroller = ScrollContainer.new()
+					#scroller.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+					#scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
+					#margins.add_child(scroller)
+
 					var tab = VBoxContainer.new()
 					tab.alignment = BoxContainer.ALIGNMENT_CENTER
 					tab.add_theme_constant_override("separation", 24)
@@ -109,11 +125,44 @@ func _ready():
 					process_file(tab, dirname + file_name)
 		file_name = dir.get_next()
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
-
 func _on_apply_changes_button_pressed():
+	for filename in GlobalVars.defines_db:
+		var db = GlobalVars.defines_db[filename]
+		var file = FileAccess.open(filename, FileAccess.READ)
+		var filebuf = file.get_as_text()
+		file.close()
+		var fl = filebuf.split("\n")
+		var outbuf = ""
+		for i in len(fl):
+			var line = fl[i]
+
+			if "#define" in line.substr(0,10):
+				var defname = line.split("#define")[1].strip_edges()
+				if len(defname.split(" ", false)) > 1:
+					defname = defname.split(" ", false)[0].strip_edges()
+				if defname in db:
+					if db[defname] is int:
+						outbuf += "#define " + defname + " " + str(db[defname]) + "\n"
+					elif db[defname] is String:
+						outbuf += "#define " + defname + " " + db[defname] + "\n"
+					elif db[defname] is bool:
+						if db[defname]:
+							outbuf += "#define " + defname + "\n"
+						else:
+							outbuf += "// #define " + defname + "\n"
+					elif db[defname] is Array:
+						if db[defname][0]:
+							outbuf += "#define " + defname + " " + str(db[defname][1]) + "\n"
+						else:
+							outbuf += "// #define " + defname + " " + str(db[defname][1]) + "\n"
+				else:
+					outbuf += line + "\n"
+			else:
+				if i < len(fl) - 1:
+					outbuf += line + "\n"
+				
+		file = FileAccess.open(filename, FileAccess.WRITE)
+		file.store_string(outbuf)
+		file.close()
+		#print_debug(filename)
 	# TODO: write all headers to decomp
-	pass # Replace with function body.
