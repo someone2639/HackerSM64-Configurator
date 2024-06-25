@@ -37,6 +37,7 @@ alignment = 2
 
 [node name="cur_path" type="Label" parent="VBoxContainer/top_bar/HBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 2
 
 [node name="NewFolderButton" type="Button" parent="VBoxContainer/top_bar/HBoxContainer"]
 layout_mode = 2
@@ -45,6 +46,7 @@ text = "Select New Decomp Folder"
 [node name="TabContainer" type="TabContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+drag_to_rearrange_enabled = true
 script = ExtResource("1_5ne1x")
 
 [node name="bottom_bar" type="MarginContainer" parent="VBoxContainer"]
