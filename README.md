@@ -1,6 +1,7 @@
 # HackerSM64 Configurator
 
 A Godot Project that streamlines the [HackerSM64](https://github.com/HackerN64/HackerSM64) repo configuration process.
+![](demo.png)
 
 
 ## Features
