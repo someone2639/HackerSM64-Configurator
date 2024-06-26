@@ -19,3 +19,4 @@ config/icon="res://floomba.png"
 [autoload]
 
 GlobalVars="*res://global_vars.gd"
+Entry="*res://EntryTemplates/Entry.gd"

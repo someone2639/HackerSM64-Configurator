@@ -1,9 +1,9 @@
 extends TabContainer
 
-const onoff = preload("res://onoff_entry.tscn")
-const value_entry = preload("res://value_entry.tscn")
-const onoff_value_entry = preload("res://onoff_value_entry.tscn")
-const dropdown_entry = preload("res://dropdown_entry.tscn")
+const onoff = preload("res://EntryTemplates/onoff/onoff_entry.tscn")
+const value_entry = preload("res://EntryTemplates/value/value_entry.tscn")
+const onoff_value_entry = preload("res://EntryTemplates/onoff_value/onoff_value_entry.tscn")
+const dropdown_entry = preload("res://EntryTemplates/dropdown/dropdown_entry.tscn")
 const Description = preload("res://Description.gd")
 
 var enumDict = {}
@@ -14,13 +14,13 @@ func filter_c_comments(line: String) -> String:
 	var single_line_comment_index = line.find("//")
 	if single_line_comment_index != -1:
 		line = line.substr(0, single_line_comment_index)
-	
+
 	# Remove multi-line comments
 	while line.find("/*") != -1 and line.find("*/") != -1:
 		var start_comment = line.find("/*")
 		var end_comment = line.find("*/") + 2
 		line = line.substr(0, start_comment) + line.substr(end_comment, line.length() - end_comment)
-	
+
 	return line.strip_edges()
 
 func populate_enum_dicts():
