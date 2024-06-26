@@ -2,6 +2,7 @@ extends FileDialog
 
 
 func _ready():
+	print(OS.get_data_dir())
 	if len(GlobalVars.file_path) > 0:
 		pass
 	elif FileAccess.file_exists("user://decomp_dir.txt"):

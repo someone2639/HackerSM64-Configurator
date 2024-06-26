@@ -1,0 +1,38 @@
+[gd_scene load_steps=2 format=3 uid="uid://cpkh5nqptjbdh"]
+
+[ext_resource type="Script" path="res://dropdown_entry.gd" id="1_l34h5"]
+
+[node name="drop_root" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_l34h5")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -12.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="option_name" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+
+[node name="option_drops" type="OptionButton" parent="HBoxContainer"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_horizontal = 10
+
+[connection signal="tree_entered" from="HBoxContainer/option_name" to="." method="_on_option_name_tree_entered"]
+[connection signal="item_selected" from="HBoxContainer/option_drops" to="." method="_on_option_drops_item_selected"]
+[connection signal="tree_entered" from="HBoxContainer/option_drops" to="." method="_on_option_drops_tree_entered"]

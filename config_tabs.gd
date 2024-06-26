@@ -3,12 +3,70 @@ extends TabContainer
 const onoff = preload("res://onoff_entry.tscn")
 const value_entry = preload("res://value_entry.tscn")
 const onoff_value_entry = preload("res://onoff_value_entry.tscn")
+const dropdown_entry = preload("res://dropdown_entry.tscn")
 const Description = preload("res://Description.gd")
+
+var enumDict = {}
+
+# funny chatgpt function
+func filter_c_comments(line: String) -> String:
+	# Remove single-line comments
+	var single_line_comment_index = line.find("//")
+	if single_line_comment_index != -1:
+		line = line.substr(0, single_line_comment_index)
+	
+	# Remove multi-line comments
+	while line.find("/*") != -1 and line.find("*/") != -1:
+		var start_comment = line.find("/*")
+		var end_comment = line.find("*/") + 2
+		line = line.substr(0, start_comment) + line.substr(end_comment, line.length() - end_comment)
+	
+	return line.strip_edges()
+
+func populate_enum_dicts():
+	var dirname = GlobalVars.file_path + "/src/game/"
+	var dir = DirAccess.get_files_at(dirname)
+	for file in dir:
+		var inEnum = false
+		var enumName = ""
+
+		var fullpath = dirname + file
+
+		if ".h" in file:
+			var fo = FileAccess.open(fullpath, FileAccess.READ)
+			var fb = fo.get_as_text()
+			fo.close()
+			
+			var fl = fb.split("\n")
+			for l in fl:
+				var line = filter_c_comments(l)
+				if "enum" in line:
+					inEnum = true
+					enumName = line.split(" ", false)[1].strip_edges()
+					enumDict[enumName] = []
+					continue
+				if "};" in line:
+					inEnum = false
+					continue
+				if inEnum:
+					if "," in line:
+						var ename = line.split(" ", false)[0].split(",")[0]
+						enumDict[enumName] += [ename]
+	# Special case for level defines
+	enumDict["Levels"] = []
+	var fo = FileAccess.open(GlobalVars.file_path+"/levels/level_defines.h", FileAccess.READ)
+	var fb = fo.get_as_text()
+	fo.close()
+	var fl = fb.split("\n")
+	for line in fl:
+		if "DEFINE_LEVEL" in line:
+			enumDict["Levels"] += [line.split(",",false)[1].strip_edges()]
 
 func process_file(tab, filepath):
 	#print_debug("processing ", filepath)
 	var file = FileAccess.open(filepath, FileAccess.READ)
-	# TODO: add descriptions
+	# TODO: descriptions work but are very hacky and depend on the repo being written a certain
+	#       way. also they currently use comment/uncomment terms instead of enable/disable
 	var curDesc : String = ""
 	var _desc : Description = null
 	var ignoringLine : bool = false
@@ -45,53 +103,57 @@ func process_file(tab, filepath):
 			if "(" in line and ")" in line:
 				continue
 			else:
+				var toAdd = null
 				labelname = line.split("#define")[1].strip_edges()
 				if len(labelname.split(" ", false)) > 1:
-					if "// #define" in line:
-						var real_name = labelname.split(" ", false)[0].strip_edges()
+					if "// #define" in line: # On/Off with Value
 						var val = labelname.split(" ", false)[1].strip_edges()
-						var toAdd = onoff_value_entry.instantiate()
-						toAdd.optname = real_name.capitalize()
+						labelname = labelname.split(" ", false)[0].strip_edges()
+						toAdd = onoff_value_entry.instantiate()
 						toAdd.value = val
 						toAdd.state = false
-						toAdd.tooltip_text = curDesc
-						toAdd._defname = real_name
-						toAdd._filepath = filepath
-						GlobalVars.defines_db[filepath][real_name] = [state, val]
-						tab.add_child(toAdd)
-					else:
-						var real_name = labelname.split(" ", false)[0].strip_edges()
+						GlobalVars.defines_db[filepath][labelname] = [state, val]
+					else: # Value
 						var val = labelname.split(" ", false)[1].strip_edges()
-						var toAdd = value_entry.instantiate()
-						toAdd.optname = real_name.capitalize()
-						toAdd.value = val
-						if labelname.split(" ", false)[0].strip_edges() == "INTERNAL_ROM_NAME":
-							toAdd.max_length = 20
-							toAdd.value = labelname.split('"', false)[1]
-						toAdd.tooltip_text = curDesc
-						toAdd._defname = real_name
-						toAdd._filepath = filepath
-						tab.add_child(toAdd)
-						GlobalVars.defines_db[filepath][real_name] = val
+						labelname = labelname.split(" ", false)[0].strip_edges()
+
+						for e in enumDict:
+							if val in enumDict[e]: # Dropdown
+								toAdd = dropdown_entry.instantiate()
+								toAdd.items = enumDict[e]
+								toAdd._defVal = val
+								break
+
+						if toAdd == null:
+							toAdd = value_entry.instantiate()
+							toAdd.value = val
+							if labelname.split(" ", false)[0].strip_edges() == "INTERNAL_ROM_NAME":
+								toAdd.max_length = 20
+								val = line.split('"', false)[1].strip_edges()
+								toAdd.value = val
+
+						GlobalVars.defines_db[filepath][labelname] = val
 				else: # just on/off
 					if "// #define" in line:
 						state = false
 					else:
 						state = true
-					var toAdd = onoff.instantiate()
-					toAdd.optname = labelname.capitalize()
+					toAdd = onoff.instantiate()
 					toAdd.state = state
-					toAdd.tooltip_text = curDesc
-					toAdd._defname = labelname
-					toAdd._filepath = filepath
 					GlobalVars.defines_db[filepath][labelname] = state
-					#print(labelname)
-					tab.add_child(toAdd)
+				toAdd.optname = labelname.capitalize()
+				toAdd._defname = labelname
+				toAdd._filepath = filepath
+				toAdd.tooltip_text = curDesc
+				tab.add_child(toAdd)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	var dirname = GlobalVars.file_path + "/include/config/"
 	var dir = DirAccess.open(dirname)
+	
+	populate_enum_dicts()
+	
 	# TODO: assume valid dir for now since we use the filepicker on prev screen
 	dir.list_dir_begin()
 	var file_name = dir.get_next()
@@ -141,7 +203,9 @@ func _on_apply_changes_button_pressed():
 				if len(defname.split(" ", false)) > 1:
 					defname = defname.split(" ", false)[0].strip_edges()
 				if defname in db:
-					if db[defname] is int:
+					if defname == "INTERNAL_ROM_NAME":
+						outbuf += "#define " + defname + ' "' + db[defname].rpad(20, " ") + '"\n'
+					elif db[defname] is int:
 						outbuf += "#define " + defname + " " + str(db[defname]) + "\n"
 					elif db[defname] is String:
 						outbuf += "#define " + defname + " " + db[defname] + "\n"
@@ -164,5 +228,3 @@ func _on_apply_changes_button_pressed():
 		file = FileAccess.open(filename, FileAccess.WRITE)
 		file.store_string(outbuf)
 		file.close()
-		#print_debug(filename)
-	# TODO: write all headers to decomp
