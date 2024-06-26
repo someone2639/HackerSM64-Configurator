@@ -13,7 +13,8 @@ config_version=5
 config/name="HackerSM64Configurator"
 run/main_scene="res://SelectDecomp.tscn"
 config/features=PackedStringArray("4.2", "Forward Plus")
-config/icon="res://icon.svg"
+boot_splash/show_image=false
+config/icon="res://floomba.png"
 
 [autoload]
 
