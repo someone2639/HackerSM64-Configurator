@@ -13,7 +13,6 @@ A Godot Project that streamlines the [HackerSM64](https://github.com/HackerN64/H
  - Hover over a control to view a description of its functionality
 
 ## TODOs
- - _Verify that the folder selected is a HackerSM64 Repo (catastrophic consequences occur here)_
  - Make descriptions work fully (and fit the screen lol)
  - Figure out scrollbar layouts (They work but are displayed nowhere near correctly)
  - Make the app look pretty and themed and whatnot (hi godot devs 🙂)
