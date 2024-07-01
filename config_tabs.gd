@@ -175,9 +175,12 @@ func _ready():
 					var scroller = ScrollContainer.new()
 					scroller.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 					scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
+					scroller.anchors_preset = PRESET_FULL_RECT
 					margins.add_child(scroller)
 
 					var tab = VBoxContainer.new()
+					tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+					tab.size_flags_vertical = Control.SIZE_EXPAND_FILL
 					tab.alignment = BoxContainer.ALIGNMENT_CENTER
 					scroller.add_child(tab)
 					GlobalVars.defines_db[dirname + file_name] = {}
