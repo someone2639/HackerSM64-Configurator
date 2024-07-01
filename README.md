@@ -16,6 +16,6 @@ A Godot Project that streamlines the [HackerSM64](https://github.com/HackerN64/H
 ## TODOs
  - Make descriptions work fully (and fit the screen lol)
  - Utilize config_safeguards.h to automatically toggle/disable relevant entries
- - Figure out scrollbar layouts (They work but are displayed nowhere near correctly)
+ - Make scrollbar take the full screen instead of half
  - Make the app look pretty and themed and whatnot (hi godot devs 🙂)
    - This also entails making the UI compliant to some legibility standard because the current UI is hard to follow horizontally
