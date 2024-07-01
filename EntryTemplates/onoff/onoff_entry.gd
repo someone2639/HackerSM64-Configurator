@@ -4,10 +4,10 @@ extends Entry
 @export var state : bool
 
 func _on_option_name_tree_entered():
-	get_node("HBoxContainer/option_name").text = optname
+	get_node("option_name").text = optname
 
 func _on_option_state_tree_entered():
-	var butt = get_node("HBoxContainer/option_state") as CheckButton
+	var butt = get_node("option_state") as CheckButton
 	butt.button_pressed = state
 	butt.tooltip_text = self.tooltip_text
 

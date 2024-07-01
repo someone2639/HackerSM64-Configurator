@@ -14,13 +14,11 @@ func filter_c_comments(line: String) -> String:
 	var single_line_comment_index = line.find("//")
 	if single_line_comment_index != -1:
 		line = line.substr(0, single_line_comment_index)
-
 	# Remove multi-line comments
 	while line.find("/*") != -1 and line.find("*/") != -1:
 		var start_comment = line.find("/*")
 		var end_comment = line.find("*/") + 2
 		line = line.substr(0, start_comment) + line.substr(end_comment, line.length() - end_comment)
-
 	return line.strip_edges()
 
 func populate_enum_dicts():
@@ -174,15 +172,14 @@ func _ready():
 					margins.set_name(tab_title)
 					add_child(margins)
 
-					#var scroller = ScrollContainer.new()
-					#scroller.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-					#scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
-					#margins.add_child(scroller)
+					var scroller = ScrollContainer.new()
+					scroller.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+					scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
+					margins.add_child(scroller)
 
 					var tab = VBoxContainer.new()
 					tab.alignment = BoxContainer.ALIGNMENT_CENTER
-					tab.add_theme_constant_override("separation", 24)
-					margins.add_child(tab)
+					scroller.add_child(tab)
 					GlobalVars.defines_db[dirname + file_name] = {}
 					process_file(tab, dirname + file_name)
 		file_name = dir.get_next()

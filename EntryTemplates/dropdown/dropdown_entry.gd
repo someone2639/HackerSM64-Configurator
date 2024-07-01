@@ -5,10 +5,10 @@ extends Entry
 @export var max_length : int = 0
 
 func _on_option_name_tree_entered():
-	get_node("HBoxContainer/option_name").text = optname
+	get_node("option_name").text = optname
 
 func _on_option_drops_tree_entered():
-	var toEdit = get_node("HBoxContainer/option_drops") as OptionButton
+	var toEdit = get_node("option_drops") as OptionButton
 	for i in len(items):
 		toEdit.add_item(items[i], i)
 	toEdit.item_count = len(items)
